@@ -145,11 +145,11 @@ summary { cursor: pointer; }
   align-items: center;
   gap: 10px;
   font-family: 'Syne', sans-serif;
-  font-size: 20px;
+  font-size: 10px;
   font-weight: 800;
   color: var(--cw-orange);
 }
-.cw-logo img { width: 30px; height: 30px; object-fit: contain; }
+.cw-logo img { width: 20px; height: 20px; object-fit: contain; }
 
 .cw-links {
   display: flex;
