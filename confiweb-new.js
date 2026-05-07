@@ -6,27 +6,54 @@
 document.getElementById('cw-year').textContent = new Date().getFullYear();
 
 // ── NAVBAR ────────────────────────────
-const cwNav    = document.getElementById('cw-nav');
-const cwBurger = document.getElementById('cw-burger');
-const cwLinks  = document.getElementById('cw-links');
+const cwNav      = document.getElementById('cw-nav');
+const cwBurger   = document.getElementById('cw-burger');
+const cwLinks    = document.getElementById('cw-links');
+const cwBackdrop = document.getElementById('cw-backdrop');
+const cwNavClose = document.getElementById('cw-nav-close');
 
 window.addEventListener('scroll', () => {
   cwNav.classList.toggle('scrolled', window.scrollY > 60);
 });
 
-cwBurger.addEventListener('click', () => {
-  cwBurger.classList.toggle('open');
-  cwLinks.classList.toggle('open');
-  document.body.style.overflow = cwLinks.classList.contains('open') ? 'hidden' : '';
-});
+function cwOpen() {
+  cwBurger.classList.add('open');
+  cwLinks.classList.add('open');
+  if (cwBackdrop) cwBackdrop.classList.add('visible');
+  document.body.style.overflow = 'hidden';
+}
+function cwClose() {
+  cwBurger.classList.remove('open');
+  cwLinks.classList.remove('open');
+  if (cwBackdrop) cwBackdrop.classList.remove('visible');
+  document.body.style.overflow = '';
+}
 
-cwLinks.querySelectorAll('a').forEach(a => {
-  a.addEventListener('click', () => {
-    cwBurger.classList.remove('open');
-    cwLinks.classList.remove('open');
-    document.body.style.overflow = '';
-  });
+cwBurger.addEventListener('click', () => {
+  cwLinks.classList.contains('open') ? cwClose() : cwOpen();
 });
+if (cwBackdrop) cwBackdrop.addEventListener('click', cwClose);
+if (cwNavClose) cwNavClose.addEventListener('click', cwClose);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cwClose(); });
+cwLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', cwClose));
+window.addEventListener('resize', () => { if (window.innerWidth > 768) cwClose(); });
+
+// ── ACTIVE SECTION ───────────────────
+const cwSections  = document.querySelectorAll('main section[id]');
+const cwNavLinks  = document.querySelectorAll('.cw-links a[href^="#"]');
+
+const cwSectionObs = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.getAttribute('id');
+      cwNavLinks.forEach(a => {
+        a.classList.toggle('cw-active', a.getAttribute('href') === `#${id}`);
+      });
+    }
+  });
+}, { rootMargin: '-35% 0px -60% 0px', threshold: 0 });
+
+cwSections.forEach(s => cwSectionObs.observe(s));
 
 // ── LANG ─────────────────────────────
 const cwLangBtn  = document.getElementById('cw-lang-btn');
@@ -76,11 +103,3 @@ const revealObs = new IntersectionObserver(entries => {
 
 revealEls.forEach(el => revealObs.observe(el));
 
-// ── SMOOTH CLOSE MOBILE NAV ON RESIZE ─
-window.addEventListener('resize', () => {
-  if (window.innerWidth > 768) {
-    cwBurger.classList.remove('open');
-    cwLinks.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-});

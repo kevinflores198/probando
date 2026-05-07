@@ -35,14 +35,51 @@
    RESET
 ═══════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
 body {
   font-family: 'Manrope', system-ui, sans-serif;
   background: var(--cw-bg);
   color: var(--cw-text);
   line-height: 1.6;
-  overflow-x: hidden;
 }
+
+/* ── MOBILE BACKDROP (global) ── */
+.cw-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1099;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+  display: none;
+}
+.cw-backdrop.visible {
+  display: block;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── MOBILE CLOSE BTN ── */
+.cw-nav-close {
+  display: none;
+  position: absolute;
+  top: 20px; right: 20px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--cw-surface);
+  border: 0.5px solid var(--cw-border);
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--cw-text2);
+  cursor: pointer;
+  transition: background var(--cw-transition);
+  z-index: 10;
+}
+.cw-nav-close:hover { background: var(--cw-bg3); color: var(--cw-text); }
 img { max-width: 100%; display: block; }
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; border: none; background: none; font: inherit; color: inherit; }
@@ -145,11 +182,11 @@ summary { cursor: pointer; }
   align-items: center;
   gap: 10px;
   font-family: 'Syne', sans-serif;
-  font-size: 10px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--cw-orange);
 }
-.cw-logo img { width: 20px; height: 20px; object-fit: contain; }
+.cw-logo img { width: 30px; height: 30px; object-fit: contain; }
 
 .cw-links {
   display: flex;
@@ -888,23 +925,77 @@ summary { cursor: pointer; }
 
 @media (max-width: 768px) {
   .cw-nav { padding: 14px 20px; }
-  .cw-links { display: none; }
-  .cw-links.open {
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    inset: 0;
-    background: var(--cw-bg);
-    align-items: center;
-    justify-content: center;
-    gap: 36px;
-    z-index: 999;
-    padding-top: 64px;
-  }
-  .cw-links.open a { font-size: 22px; }
   .cw-burger { display: flex; }
+  .cw-nav-close { display: flex; }
   .cw-btn-nav span { display: none; }
   .cw-btn-nav { padding: 9px 13px; }
+
+  /* ── MOBILE NAV PANEL ── */
+  .cw-links {
+    position: fixed;
+    top: 0; right: 0;
+    width: min(320px, 85vw);
+    height: 100vh;
+    background: var(--cw-bg2);
+    border-left: 0.5px solid var(--cw-border);
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 0;
+    padding: 72px 0 40px;
+    transform: translateX(110%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+    overflow-y: auto;
+  }
+  .cw-links.open {
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .cw-links li {
+    display: block;
+    width: 100%;
+    border-bottom: 0.5px solid var(--cw-border);
+    list-style: none;
+  }
+  .cw-links li:first-child { border-top: 0.5px solid var(--cw-border); }
+
+  .cw-links a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--cw-text2) !important;
+    background: transparent;
+    letter-spacing: 0;
+    transition: color 0.2s ease, background 0.2s ease, padding-left 0.2s ease;
+  }
+  .cw-links a::after {
+    content: '→';
+    font-size: 14px;
+    opacity: 0.4;
+    flex-shrink: 0;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .cw-links a:hover {
+    color: var(--cw-text) !important;
+    background: var(--cw-surface);
+    padding-left: 36px;
+  }
+  .cw-links a:hover::after { transform: translateX(4px); opacity: 1; }
+  .cw-links a.cw-active {
+    color: var(--cw-orange) !important;
+    background: var(--cw-surface);
+    padding-left: 36px;
+    border-left: 3px solid var(--cw-orange);
+  }
+  .cw-links a.cw-active::after { opacity: 1; }
 
   .cw-hero-title { font-size: 38px; }
   .cw-hero-btns { flex-direction: column; }

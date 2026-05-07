@@ -59,26 +59,66 @@ const savedLang = localStorage.getItem('lang') || 'es';
 langLabel.textContent = savedLang.toUpperCase();
 
 /* ── NAVBAR ──────────────────────────────────────── */
-const navbar   = document.getElementById('navbar');
+const navbar    = document.getElementById('navbar');
 const btnBurger = document.getElementById('btn-burger');
 const navLinks  = document.getElementById('nav-links');
+const backdrop  = document.getElementById('nav-backdrop');
+const navClose  = document.getElementById('nav-close');
 
 window.addEventListener('scroll', () => {
   navbar.classList.toggle('scrolled', window.scrollY > 50);
 });
 
-btnBurger.addEventListener('click', () => {
-  btnBurger.classList.toggle('open');
-  navLinks.classList.toggle('mobile-open');
+function openMenu() {
+  btnBurger.classList.add('open');
+  navLinks.classList.add('mobile-open');
+  if (backdrop) { backdrop.classList.add('visible'); }
+  document.body.style.overflow = 'hidden';
+}
+function closeMenu() {
+  btnBurger.classList.remove('open');
+  navLinks.classList.remove('mobile-open');
+  if (backdrop) { backdrop.classList.remove('visible'); }
+  document.body.style.overflow = '';
+}
+
+
+btnBurger.addEventListener('click', (e) => {
+  e.stopPropagation(); // 🔥 CLAVE
+  navLinks.classList.contains('mobile-open') ? closeMenu() : openMenu();
 });
 
-// Cerrar menú móvil al hacer click en un link
-navLinks.querySelectorAll('a').forEach(link => {
-  link.addEventListener('click', () => {
-    btnBurger.classList.remove('open');
-    navLinks.classList.remove('mobile-open');
-  });
+document.addEventListener('click', (e) => {
+  if (
+    navLinks.classList.contains('mobile-open') &&
+    !navLinks.contains(e.target) &&
+    !btnBurger.contains(e.target)
+  ) {
+    closeMenu();
+  }
 });
+if (backdrop) backdrop.addEventListener('click', closeMenu);
+if (navClose) navClose.addEventListener('click', closeMenu);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMenu(); });
+
+/* ── ACTIVE SECTION ──────────────────────────────── */
+const sections   = document.querySelectorAll('main section[id]');
+const navAnchors = document.querySelectorAll('.nav-links a[href^="#"]');
+
+const sectionObs = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.getAttribute('id');
+      navAnchors.forEach(a => {
+        a.classList.toggle('nav-active', a.getAttribute('href') === `#${id}`);
+      });
+    }
+  });
+}, { rootMargin: '-35% 0px -60% 0px', threshold: 0 });
+
+sections.forEach(s => sectionObs.observe(s));
 
 /* ── FABs (WhatsApp + top) ───────────────────────── */
 const fabWa  = document.getElementById('fab-whatsapp');
